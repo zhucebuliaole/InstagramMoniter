@@ -101,3 +101,8 @@ class InstascraperDownloaderMiddleware:
 
     def spider_opened(self, spider):
         spider.logger.info('Spider opened: %s' % spider.name)
+
+class ProxyMiddleware(object):
+      def process_request(self, request, spider):
+        request.meta['splash']['args']['proxy'] = "http://sovea.top:7890"
+        
