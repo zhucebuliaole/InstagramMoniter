@@ -65,7 +65,7 @@ for x in range(2):
         # 更新cursor的值，下一页就是这个
         edges = res['data']['user'][edgeFoll]['edges']
 
-        out = open(fileName, "a+", newline="", encoding="utf-8-sig")
+        out = open(/data/fileName, "a+", newline="", encoding="utf-8-sig")
         csv_writer = csv.writer(out, dialect="excel")
 
         for i in edges:
