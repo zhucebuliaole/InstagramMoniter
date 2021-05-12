@@ -8,7 +8,7 @@ import json
 import time
 import random
 import requests
-import pymongo
+# import pymongo
 from pyquery import PyQuery as pq
 
 # client = pymongo.MongoClient("mongodb://localhost:27017/")
@@ -29,12 +29,12 @@ headers = {
     'method': 'GET',
     'path': '/graphql/query/?query_hash=c76146de99bb02f6415203be841dd25a&variables=%7B%22id%22%3A%221507979106%22%2C%22include_reel%22%3Atrue%2C%22fetch_mutual%22%3Atrue%2C%22first%22%3A24%7D',
     'scheme': 'https',
-    'cookie': 'ig_did=D0BBE613-E4FB-43FF-BE61-BD2773F28215; mid=X8J0rAALAAHzbjA4odl8yodBLon7; ig_nrcb=1; fbm_124024574287414=base_domain=.instagram.com; csrftoken=C4YxPdgI63qPIJ8hDWt9DIqcrFleomtk; ds_user_id=40009934193; sessionid=40009934193:jSydV4x95fjpQ2:6; shbid=8899; shbts=1618748446.3717258; rur=PRN; fbsr_124024574287414=Kuw9sxnllT7VEy65ZTOBrlbm2fRmFqLnWRDpAiNjV0o.eyJ1c2VyX2lkIjoiMTAwMDUyMzE1MjkwODE1IiwiY29kZSI6IkFRQm5HcFYtcUhXdWxOSTRzNWh6OXQ3Q2c3WldPczZXZUg2RWkwUTNIVUtZRUZmSllaaUNiNm9iU19KODk5VlFNTDk3VXJqVUEtcVMyOC1CUTUtQWJIMnNFZWdsd1k2LVZjRlozRHRTbWxDLUktbGJYSmd3ZnVfQjFReFZYaWxEYUJka1FnVTVRSl9majFQVXZmNlp2VVpYaFRlYnJ3ZWR4SnJhdERYX3luSlhBTTJmdGNWSEg0UktUa293VEpDelVnOVlTUEt4cVhRSHlRalNqQ294MWd5aU8xZFVRWDIwYzBOOE1SMUxqbkxyajdXRmkySzV1TkJ0WmlrZGc4V25jLXlwaDdzMUh3VXVYaWlUTnpzQ3pZal9wbWYxcU54ZzVDVG5rby12ZWZqNEVTZzllMjZSUW9UU2psRlVWR0FwNnBNb1h5R3pUMXd5Z05JSllENzdIQnVzIiwib2F1dGhfdG9rZW4iOiJFQUFCd3pMaXhuallCQU1zM1FoRjFaQkcwbEZ1bzk4cEplMkVaQWZGMTFEZjBNdEdxOXVWeTZrRGJJYnpFdWEzSGVPQTYyaDZQRmVaQmVBbVNCTDlKaEhSZHVaQUxYVkZ4ZHc0b2JRSkZWaFBUcXV5TzZGclNaQUV4dlhubEhjV3BxYm90cmdlbk5SaUZUaTJYTzQ4dlBPM0dBWkNFdlNnTm5aQ1pDdHdsbXl4NFhUYXpKWFZQcnVuUiIsImFsZ29yaXRobSI6IkhNQUMtU0hBMjU2IiwiaXNzdWVkX2F0IjoxNjE4NzQ5ODc1fQ',
+    'cookie': 'mid=YIEM2wALAAGbnPasphDeoUgt6a91; ig_did=010FBA57-E78A-402B-B96E-602A967F9B81; ig_nrcb=1; csrftoken=lkqfVfru3J1ktEMdnOH8mCfve8JSn3Ab; ds_user_id=47568669371; sessionid=47568669371%3A7fjlzGt4t04O3r%3A19; rur=NAO',
     'referer': 'https://www.instagram.com/skuukzky/followers/?hl=zh-cn',
     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36',
-    'x-csrftoken': 'C4YxPdgI63qPIJ8hDWt9DIqcrFleomtk',
+    'x-csrftoken': 'lkqfVfru3J1ktEMdnOH8mCfve8JSn3Ab',
     'x-ig-app-id':'936619743392459',
-    'x-ig-www-claim': 'hmac.AR3dCaDVELkM5_jUcWy6BgoYx5qdPkk_FpQ-5YBrNqQoswNP',
+    'x-ig-www-claim': 'hmac.AR2FAKuSXVIPDzIEmU6pvaSQOHKzW8OeciTeYmPGMYX_vhCv"',
     'x-requested-with': 'XMLHttpRequest',
 }
 def get_html(url):
@@ -70,11 +70,16 @@ def get_content(url):
         print(e)
         return None
 def get_urls(html):
-    id, username = '', ''
-    user_id = re.findall('"profilePage_([0-9]+)"', html, re.S)[0]
-    print('user_id：' + user_id)
+    id, username,user_id = '', '', ''
+    user_ids = re.findall('"profilePage_([0-9]+)"', html, re.S)
+    if len(user_ids)>=1:
+        user_id = user_ids[0]
+        print('user_id：' + user_id)
+    else:
+        return
     doc = pq(html)
     items = doc('script[type="text/javascript"]').items()
+    post_num = 0
     for item in items:
         if item.text().strip().startswith('window._sharedData'):
             js_data = json.loads(item.text()[21:-1], encoding='utf-8')
@@ -93,12 +98,21 @@ def get_urls(html):
             following_count = user['edge_follow']['count']
             followed_count = user['edge_followed_by']['count']
             post_count = user['edge_owner_to_timeline_media']['count']
+            ####
+            intro_len = len(intro)
+            user_name_len = len(username)
+            full_name_len = len(fullname)
+            ####
             new_info_data = {
                     'user_id': id,
                     'country_code': country_code,
-                    'user_name': username,
-                    'fullname': fullname,
-                    'intro': intro,
+                    # 'user_name': username,
+                    # 'fullname': fullname,
+                    # 'intro': intro,
+                    'user_name_len': user_name_len,
+                    'full_name_len': full_name_len,
+                    'intro_len': intro_len,
+                    ####
                     'external_url': external_url,
                     'is_joined_recently':is_joined_recently,
                     'is_private':is_private,
@@ -111,9 +125,9 @@ def get_urls(html):
                 }
             print(new_info_data)
             list_values = [i for i in new_info_data.values()]
-            df = pd.DataFrame(columns=['user_id','country_code','user_name','fullname','intro','external_url','is_joined_recently','is_private','is_verified','is_business_account','highlight_reel_count','following_count','followed_count','post_count'])
+            df = pd.DataFrame(columns=['user_id','country_code','user_name_len','full_name_len','intro_len','external_url','is_joined_recently','is_private','is_verified','is_business_account','highlight_reel_count','following_count','followed_count','post_count'])
             df = df.append(new_info_data,ignore_index=True)
-            df.to_csv('data/user_csv.csv', mode='a',header=True, index=None,encoding="utf-8")
+            df.to_csv('../data/real/user_csv.csv', mode='a',index=None,encoding="utf-8")
             # table_user.update_one({'id': id}, {'$set': {
             #     'user_id': id,
             #     'country_code': country_code,
@@ -137,8 +151,10 @@ def get_urls(html):
             page_info = js_data["entry_data"]["ProfilePage"][0]["graphql"]["user"]["edge_owner_to_timeline_media"]['page_info']
             cursor = page_info['end_cursor']
             flag = page_info['has_next_page']
+
             for edge in edges:
                 post_id = edge['node']['id']
+                post_text = ""
                 if len(edge['node']['edge_media_to_caption']['edges'])>=1:
                     post_text = edge['node']['edge_media_to_caption']['edges'][0]['node']['text']
                 post_time = edge['node']['taken_at_timestamp']
@@ -151,6 +167,10 @@ def get_urls(html):
                     # print(display_url)
                     urls.append(display_url)
                 urls = ';'.join(urls)
+                ####
+                post_text_len = len(post_text)
+                post_num = post_num + 1
+                ####
                 # table_post.update_one({'post_id': post_id}, {'$set': {
                 #     'user_id': id,
                 #     'user_name': username,
@@ -171,16 +191,18 @@ def get_urls(html):
                     'comment_count': comment_count,
                     'like_count': like_count,
                     'img_urls': urls,
-                    'post_text': post_text,
+                    #'post_text': post_text,
+                    'post_text_len': post_text_len,
+                    ####
                     '#_count': post_text.count('#'),
                     '@_count': post_text.count('@'),
                 }
                 print(new_post_data)
                 list_values = [i for i in new_post_data.values()]
                 df = pd.DataFrame(columns=['user_id','user_name','post_id','time',
-            'comment_count','like_count','img_urls','post_text','#_count','@_count'])
+            'comment_count','like_count','img_urls','post_text_len','#_count','@_count'])
                 df = df.append(new_post_data,ignore_index=True)
-                df.to_csv('data/post_csv.csv', mode='a',header=True, index=None,encoding="utf-8")
+                df.to_csv('../data/real/post_csv.csv', mode='a',index=False,encoding="utf-8")
 
             # print(cursor, flag)
     while flag:
@@ -192,6 +214,7 @@ def get_urls(html):
         for edge in infos:
             # print('\n\n\n\n',edge)
             post_id = edge['node']['id']
+            post_text = ""
             if len(edge['node']['edge_media_to_caption']['edges'])>=1:
                 post_text = edge['node']['edge_media_to_caption']['edges'][0]['node']['text']
             post_time = edge['node']['taken_at_timestamp']
@@ -210,6 +233,10 @@ def get_urls(html):
                     print(display_url)
                     urls.append(display_url)
             urls = ';'.join(urls)
+            ####
+            post_text_len = len(post_text)
+            post_num = post_num + 1
+            ####
             # table_post.update_one({'post_id': post_id}, {'$set': {
             #     'user_id': id,
             #     'user_name': username,
@@ -230,22 +257,28 @@ def get_urls(html):
                     'comment_count': comment_count,
                     'like_count': like_count,
                     'img_urls': urls,
-                    'post_text': post_text,
+                    #'post_text': post_text,
+                    'post_text_len': post_text_len,
+                    ####
                     '#_count': post_text.count('#'),
                     '@_count': post_text.count('@'),
             }
             print(new_post_data)
             list_values = [i for i in new_post_data.values()]
             df = pd.DataFrame(columns=['user_id','user_name','post_id','time',
-            'comment_count','like_count','img_urls','post_text','#_count','@_count'])
+            'comment_count','like_count','img_urls','post_text_len','#_count','@_count'])
             df = df.append(new_post_data,ignore_index=True)
-            df.to_csv('../data/post_csv.csv', mode='a',index=None,encoding="utf-8")
+            df.to_csv('../data/real/post_csv.csv', mode='a',index=False,encoding="utf-8")
+        if post_num>=100:
+            break
+        time.sleep(5)
+        
 def main(user):
     get_urls(get_html(url_base.format(user)))
 
 
 if __name__ == '__main__':
-    main(input())
+    main("crysmine_77")
     # df = pd.read_csv('source.csv')
     # for index, row in df.iterrows():
     #     print('{}/{}'.format(index, df.shape[0]), row['username'])
