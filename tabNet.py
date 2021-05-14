@@ -1,9 +1,9 @@
 """
-@File  :tabnetTest.py
+@File  :tabNet.py
 @Author:qileLiang
 @Email ：liangqile@outlook.com
 @Date  :2021/5/12 11:11
-@Description：
+@Description：train our model by tabNet 
 """
 from pytorch_tabnet.tab_model import TabNetClassifier
 
