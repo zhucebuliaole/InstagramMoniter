@@ -9,7 +9,7 @@ from pytorch_tabnet.tab_model import TabNetClassifier
 
 import torch
 from sklearn.preprocessing import LabelEncoder
-from sklearn.metrics import roc_auc_score
+from sklearn.metrics import roc_auc_score, accuracy_score, f1_score
 
 import pandas as pd
 import numpy as np
@@ -119,7 +119,9 @@ loaded_clf.load_model(saved_filepath)
 
 loaded_preds = loaded_clf.predict_proba(X_test)
 loaded_test_auc = roc_auc_score(y_score=loaded_preds[:, 1], y_true=y_test)
+loaded_test_acc = accuracy_score(y_true=y_test, y_pred=np.round(loaded_preds[:, 1]))
+loaded_test_f1 = f1_score(y_test, y_pred=np.round(loaded_preds[:, 1]))
 
-print(f"LOAD-MODEL TEST SCORE FOR InstagramBot : {loaded_test_auc}")
+print(f"LOAD-MODEL TEST SCORE FOR InstagramBot : auc: {loaded_test_auc} acc: {loaded_test_acc} f1: {loaded_test_f1}")
 
 print(clf.feature_importances_)
