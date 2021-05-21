@@ -89,6 +89,7 @@ def more_data_handler(data: dict, code):
                 'recent_next_max_id': recent_next_max_id,
                 'recent_next_page': recent_next_page,
             })
+            #最新贴
             for item in recent_data_sections:
                 for sub_item in item.get("layout_content", {}).get("medias", [{}]):
                     temp_media = sub_item.get("media", {})
@@ -96,6 +97,7 @@ def more_data_handler(data: dict, code):
                     comment_count = temp_media.get("comment_count")
                     like_count = temp_media.get("like_count")
                     timestamp = temp_media.get("taken_at")
+                    post_code = temp_media.get("code")
                     caption_text = ""
                     temp_caption = temp_media.get("caption", {}) or {}
                     # print(type(temp_caption))
@@ -139,6 +141,7 @@ def more_data_handler(data: dict, code):
                                     0].get("url")
                             )
                     print({
+                        'post_code': post_code,
                         'comment_count': comment_count,
                         'like_count': like_count,
                         'timestamp': timestamp,
@@ -186,12 +189,87 @@ def preview_data_handler(raw_data: dict, code):
             recent_next_media_ids = recent_data.get("next_media_ids", [])
             recent_next_page = recent_data.get("next_page")
             recent_data_sections = recent_data.get("sections", [{}])
+            ranked_more_available = recent_data.get("more_available")
+            ranked_next_max_id = recent_data.get("next_max_id")
+            ranked_next_media_ids = recent_data.get("next_media_ids", [])
+            ranked_next_page = recent_data.get("next_page")
+            ranked_data_sections = recent_data.get("sections", [{}])
             print({
                 'recent_more_available': recent_more_available,
                 'recent_next_max_id': recent_next_max_id,
                 'recent_next_media_ids': recent_next_media_ids,
                 'recent_next_page': recent_next_page,
             })
+            #热门贴
+            for item in ranked_data_sections:
+                # print(item)
+                # print("")
+                for sub_item in item.get("layout_content", {}).get("medias", [{}]):
+                    temp_media = sub_item.get("media", {})
+                    # print(type(temp_media))
+                    comment_count = temp_media.get("comment_count")
+                    like_count = temp_media.get("like_count")
+                    timestamp = temp_media.get("taken_at")
+                    post_code = temp_media.get("code")
+                    caption_text = ""
+                    temp_caption = temp_media.get("caption", {}) or {}
+                    # print(temp_caption)
+                    # print(temp_media)
+                    # print(type(temp_caption))
+                    caption_text = temp_caption.get("text", "")
+                    user_id = temp_caption.get("user_id", "")
+                    username = temp_caption.get("user", {}).get("username")
+                    full_name = temp_caption.get("user", {}).get("full_name")
+                    profile_pic_url = temp_caption.get(
+                        "user", {}).get("profile_pic_url")
+                    carousel_media_count = 1
+                    accessibility_caption = []
+                    carousel_media_links = []
+                    if "carousel_media_count" in temp_media:
+                        carousel_media_count = temp_media.get(
+                            "carousel_media_count")
+                        for carousel_media_item in temp_media.get("carousel_media", [{}]):
+                            if carousel_media_item.get("media_type") == 1:
+                                accessibility_caption.append(
+                                    carousel_media_item.get("accessibility_caption"))
+                                carousel_media_links.append(
+                                    carousel_media_item.get("image_versions2", {}).get(
+                                        "candidates", [{}])[0].get("url")
+                                )
+                            elif carousel_media_item.get("media_type") == 2:
+                                carousel_media_links.append(
+                                    carousel_media_item.get("video_versions", [{}])[
+                                        0].get("url")
+                                )
+                    else:
+                        if temp_media["media_type"] == 1:
+                            accessibility_caption.append(
+                                temp_media.get("accessibility_caption"))
+                            carousel_media_links.append(
+                                temp_media.get("image_versions2", {}).get(
+                                    "candidates", [{}])[0].get("url")
+                            )
+                        elif temp_media["media_type"] == 2:
+                            carousel_media_links.append(
+                                temp_media.get("video_versions", [{}])[
+                                    0].get("url")
+                            )
+                    print({
+                        'post_code': post_code,
+                        'comment_count': comment_count,
+                        'like_count': like_count,
+                        'timestamp': timestamp,
+                        'caption_text': caption_text,
+                        'user_id': user_id,
+                        'username': username,
+                        'full_name': full_name,
+                        'profile_pic_url': profile_pic_url,
+                        'carousel_media_count': carousel_media_count,
+                        'accessibility_caption': accessibility_caption,
+                        'carousel_media_links': carousel_media_links,
+                    })
+                    print("")
+            #最新贴
             for item in recent_data_sections:
                 # print(item)
                 # print("")
@@ -201,6 +279,7 @@ def preview_data_handler(raw_data: dict, code):
                     comment_count = temp_media.get("comment_count")
                     like_count = temp_media.get("like_count")
                     timestamp = temp_media.get("taken_at")
+                    post_code = temp_media.get("code")
                     caption_text = ""
                     temp_caption = temp_media.get("caption",{}) or {}
                     # print(temp_caption)
@@ -245,6 +324,7 @@ def preview_data_handler(raw_data: dict, code):
                                     0].get("url")
                             )
                     print({
+                        'post_code':post_code,
                         'comment_count': comment_count,
                         'like_count': like_count,
                         'timestamp': timestamp,
